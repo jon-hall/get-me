@@ -1,0 +1,40 @@
+{
+  "name": "get-me",
+  "version": "0.0.1",
+  "description": "You get me?",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "jon-hall/get-me"
+  },
+  "keywords": [
+    "module loader",
+    "lazy loader",
+    "lazy module loader",
+    "require",
+    "lazy require",
+    "require lazy",
+    "get-me",
+    "get me",
+    "get"
+  ],
+  "author": "Jon Hall <jon_hall@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "express": "^4.13.0",
+    "gulp": "^3.9.0",
+    "gulp-jasmine": "^2.0.1",
+    "proxyquire": "^1.5.0",
+    "serve-static": "^1.10.0"
+  },
+  "dependencies": {
+    "harmonize": "^1.4.2",
+    "suspend": "^0.6.1"
+  },
+  "engines": {
+    "node": ">=0.11"
+  }
+}

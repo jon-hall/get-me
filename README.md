@@ -1,6 +1,12 @@
-get me
--
+# get me
+
 Simplifies requiring packages in node harmony, using proxies and memoisation to load packages only as required.
+
+## Install
+
+```sh
+$ npm install get-me --save
+```
 
 ## Usage
 

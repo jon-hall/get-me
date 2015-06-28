@@ -32,8 +32,7 @@
   },
   "dependencies": {
     "harmonize": "^1.4.2",
-    "suspend": "^0.6.1",
-    "underscore": "^1.8.3"
+    "suspend": "^0.6.1"
   },
   "engines": {
     "node": ">=0.11"

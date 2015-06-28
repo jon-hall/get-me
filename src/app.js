@@ -1,5 +1,4 @@
-var _ = require('underscore'),
-    suspend = require('suspend'),
+var suspend = require('suspend'),
     resumeRaw = suspend.resumeRaw;
 
 var cache = {},

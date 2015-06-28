@@ -1,10 +1,13 @@
 var suspend = require('suspend'),
     resumeRaw = suspend.resumeRaw;
 
-var cache = {},
-    aliases = {};
+var aliases = {},
+    moduleNotFound = Symbol();
 
 function getme(parentRequire, localAliases, noCache) {
+    // TODO: Way to clear local caches? Or just let user create new instance?
+    var cache = {};
+
     if(typeof localAliases !== 'object') {
         noCache = !!localAliases;
         localAliases = {};
@@ -25,7 +28,7 @@ function getme(parentRequire, localAliases, noCache) {
         get: function(proxy, name) {
             var mod = noCache ? tryRequire(parentRequire, name, aliasProxy) :
                 cache[name] || (cache[name] = tryRequire(parentRequire, name, aliasProxy));
-            if(!mod) {
+            if(mod === moduleNotFound) {
                 throw new Error('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
             }
             return mod;
@@ -56,11 +59,6 @@ module.exports.alias.flush = function() {
     return getme;
 };
 
-module.exports.flush = function() {
-    cache = {};
-    return getme;
-};
-
 var needsReCasingRegex = /[A-Z]+/;
 function tryRequire(req, name, aliasSet) {
     if(aliasSet[name]) {
@@ -71,7 +69,7 @@ function tryRequire(req, name, aliasSet) {
     name = name.replace(/\$/g, '/');
 
     var candidates = [name],
-        mod;
+        mod = moduleNotFound;
 
     // If it isn't already a relative path (e.g. $$['./index']), then add the
     // relative path version to our list of candidates
@@ -84,10 +82,11 @@ function tryRequire(req, name, aliasSet) {
     }
 
     candidates.some(c => {
+        var failed = false;
         try {
             mod = req(c);
-        } catch(ex) { /* do nothing, was just a bad guess... */ }
-        return !!mod;
+        } catch(ex) { failed = true; }
+        return !failed;
     });
 
     return mod;

@@ -91,7 +91,7 @@ describe('when i ask it to get me things', function() {
     describe('and i locally alias modules', function() {
         it('then it should get me the correct aliased modules back for each ' +
         'instance', function() {
-            var $ = require('../src/app').flush().alias.flush()(require),
+            var $ = require('../src/app').alias.flush()(require),
             $$ = require('../src/app').alias({
                 // set a global alias too
                 exec: 'fs'
@@ -106,10 +106,10 @@ describe('when i ask it to get me things', function() {
             expect($.exec).toBe(require('fs'));
 
             // Local alias overrides global
-            //expect($$$.exec).toBe(require('express'));
+            expect($$$.exec).toBe(require('express'));
 
             // But not each other
-            //expect($$.exec).toBe(require('child_process').exec);
+            expect($$.exec).toBe(require('child_process').exec);
         });
     });
 });

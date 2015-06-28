@@ -1,14 +1,31 @@
-var suspend = require('suspend'),
+var _ = require('underscore'),
+    suspend = require('suspend'),
     resumeRaw = suspend.resumeRaw;
 
 var cache = {},
     aliases = {};
 
-function getme(parentRequire, noCache) {
+function getme(parentRequire, localAliases, noCache) {
+    if(typeof localAliases !== 'object') {
+        noCache = !!localAliases;
+        localAliases = {};
+    } else {
+        Object.keys(localAliases).forEach(k => {
+            localAliases[k] = getTargetFunction(localAliases[k]);
+        });
+    }
+
+    var aliasProxy = Proxy.create({
+        get: function(proxy, name) {
+            return localAliases.hasOwnProperty(name) ? localAliases[name] :
+                aliases.hasOwnProperty(name) ? aliases[name] : undefined;
+        }
+    });
+
     return Proxy.create({
         get: function(proxy, name) {
-            var mod = noCache ? tryRequire(parentRequire, name) :
-                cache[name] || (cache[name] = tryRequire(parentRequire, name));
+            var mod = noCache ? tryRequire(parentRequire, name, aliasProxy) :
+                cache[name] || (cache[name] = tryRequire(parentRequire, name, aliasProxy));
             if(!mod) {
                 throw new Error('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
             }
@@ -35,11 +52,20 @@ module.exports.alias = function(alias, target) {
     addAlias(alias, target);
     return getme;
 };
+module.exports.alias.flush = function() {
+    aliases = {};
+    return getme;
+};
+
+module.exports.flush = function() {
+    cache = {};
+    return getme;
+};
 
 var needsReCasingRegex = /[A-Z]+/;
-function tryRequire(req, name) {
-    if(aliases[name]) {
-        return aliases[name](req);
+function tryRequire(req, name, aliasSet) {
+    if(aliasSet[name]) {
+        return aliasSet[name](req);
     }
 
     // Strip (invalid) '$' chars and replace with forward slashes (for specifying paths)

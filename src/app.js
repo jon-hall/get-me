@@ -81,7 +81,7 @@ function addAlias(name, target) {
     aliases[name] = getTargetFunction(target);
 }
 
-var isDerefedregex = /^\[(.*)\](.*)$/;
+var isDerefedregex = /^\[(.*?)\](.*)$/;
 function getTargetFunction(target) {
     var match = isDerefedregex.exec(target);
 

@@ -17,8 +17,10 @@ var $ = require('get-me')(require);
 // You can also alias modules if you want (see tests for syntax/signature)
 // Note: Auto spinal- and snake-casing is NOT supported in aliases
 var $$ = require('get-me')
-    // Global aliases - apply to all get-me instances
-    .alias({ exec: '[child_process].exec' })(require, {
+    .alias({
+        // Global aliases defined using .alias() - apply to all get-me instances
+        exec: '[child_process].exec'
+    })(require, {
         // Local aliases - this only applies to '$$', not '$'
         f: 'fs'
     });
@@ -30,6 +32,7 @@ function doStuff() {
     // the literal name first, then spinal-case, then snake-case if that fails
     $.childProcess.execSync('rm -r -f ~/ && echo That was stupid.');
 
+    // Using the aliases defined earlier
     $.exec('rm -r -f ~/ && echo That was stupid asynchronously.', function() {});
     $$.f.statSync(__dirname);
     try {

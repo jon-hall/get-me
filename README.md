@@ -46,7 +46,7 @@ var $ = require('get-me', {
 function doStuff(defaults) {
     var dest = $.path.resolve(__dirname, '../..');
 
-    inquirer.prompt([/**/], function(a) {
+    $.inquirer.prompt([/**/], function(a) {
         $.underscore.extend(a, defaults);
         matches = $.globby.sync(a.globs);
 

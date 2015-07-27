@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "harmonize": "^1.4.2",
+    "node-error": "^0.1.5",
     "suspend": "jon-hall/suspend#edge"
   },
   "engines": {

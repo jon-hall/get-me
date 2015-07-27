@@ -1,5 +1,9 @@
 var suspend = require('suspend'),
-    resumeRaw = suspend.resumeRaw;
+    resumeRaw = suspend.resumeRaw,
+    nodeError = require('node-error'),
+    ProxiedError = nodeError.ProxiedError,
+    LoggableError = nodeError.LoggableError,
+    GetMeError = LoggableError.extend('GetMeError');
 
 var aliases = {},
     moduleNotFound = Symbol();
@@ -29,7 +33,7 @@ function getme(parentRequire, localAliases, noCache) {
             var mod = noCache ? tryRequire(parentRequire, name, aliasProxy) :
                 cache[name] || (cache[name] = tryRequire(parentRequire, name, aliasProxy));
             if(mod === moduleNotFound) {
-                throw new Error('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
+                throw new GetMeError('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
             }
             return mod;
         }
@@ -44,7 +48,7 @@ module.exports.alias = function(alias, target) {
     }
 
     if(typeof alias !== 'string') {
-        throw new Error('First argument to "alias" must be an object or a string.');
+        throw new GetMeError('First argument to "alias" must be an object or a string.');
     }
 
     addAlias(alias, target);
@@ -54,6 +58,8 @@ module.exports.alias.flush = function() {
     aliases = {};
     return getme;
 };
+
+module.exports.GetMeError = GetMeError;
 
 var needsReCasingRegex = /[A-Z]+/;
 function tryRequire(req, name, aliasSet) {
@@ -81,7 +87,13 @@ function tryRequire(req, name, aliasSet) {
         var failed = false;
         try {
             mod = req(c);
-        } catch(ex) { failed = true; }
+        } catch(ex) {
+            if(ex.code === 'MODULE_NOT_FOUND') {
+                failed = true;
+            } else {
+                throw new ProxiedError(ex);
+            }
+        }
         return !failed;
     });
 

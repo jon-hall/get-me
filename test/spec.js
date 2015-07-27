@@ -23,6 +23,19 @@ describe('when i ask it to get me things', function() {
         expect($.nested$childModule).toBe(require('./nested/child-module'));
     });
 
+    it('then it should not swallow errors when requiring files with syntax ' +
+        'errors', function() {
+        var e;
+
+        try {
+            $.bad;
+        } catch(ex) {
+            e = ex;
+        }
+
+        expect(e instanceof require('../src/app').GetMeError).toBe(false);
+    })
+
     it('then it should be internally caching', function () {
         var resolved = require.resolve('./same-dir'),
             sd = require('./same-dir');

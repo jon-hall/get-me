@@ -39,7 +39,7 @@ function doStuff(defaults) {
 When you can do this
 
 ```js
-var $ = require('get-me', {
+var $ = require('get-me')(require, {
     execSync: '[child_process].execSync'
 });
 
@@ -65,3 +65,34 @@ No need to scroll back to the top, drop in another require and all that jazz - *
 
 ---
 See the examples folder for a more replete example of all the API features.
+## Mocking in tests
+You can also now use get-me for providing stubs/mocks in tests by means of global aliases
+```js
+// app.js
+var $ = require('get-me')(require);
+module.exports = function(val) {
+    $.myDependency.a = val;
+}
+```
+```js
+// spec.js
+var getme = require('get-me'),
+    $ = getme(require, {
+        app: '../src/app'
+    });
+
+describe('my app', function() {
+    var mock;
+    beforeEach(function() {
+        mock = {};
+        getme.alias({
+            './my-dependency': mock
+        });
+    });
+
+    it('does things', function() {
+        $.app(5);
+        expect(mock.a).toBe(5);
+    });
+});
+```

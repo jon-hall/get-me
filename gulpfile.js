@@ -1,19 +1,26 @@
 var gulp = require('gulp');
 var jasmine = require('gulp-jasmine');
+var plumber = require('gulp-plumber');
 require("harmonize")();
+var isWatch = false;
 
 gulp.task('dev', ['test'], function() {
-    gulp.watch(['./src/*.js', './test/*.js'], ['test']);
+    isWatch = true;
+    gulp.watch(['./src/*.js', './src/**/*.js', './test/*.js',
+        './test/**/*.js'], ['test']);
 });
 
 gulp.task('test', function () {
-    // TODO: This is a nasty hack to stop failed tests crashing watch - need better fix!
-    gulp.src('./test/*.js')
-        .pipe(jasmine())
-        .on('error', function(err) {
-            if(err.message !== 'Tests failed') console.error(err);
-        })
-        .on('err', function(err) {
-            if(err.message !== 'Tests failed') console.error(err);
-        });
+    return gulp.src(['./test/*spec.js', './test/**/*spec.js'])
+        .pipe(plumber({ errorHandler: handleError }))
+        .pipe(jasmine());
 });
+
+function handleError(err) {
+    console.log(err.toString());
+    this.emit('end');
+    if(!isWatch) {
+        // Make sure we exit with non-zero code if not watching
+        process.exit(1);
+    }
+}

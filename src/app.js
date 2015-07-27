@@ -47,10 +47,6 @@ module.exports.alias = function(alias, target) {
         throw new Error('First argument to "alias" must be an object or a string.');
     }
 
-    if(typeof target !== 'string') {
-        throw new Error('Second argument to "alias" must be a string.');
-    }
-
     addAlias(alias, target);
     return getme;
 };
@@ -107,19 +103,35 @@ function addAlias(name, target) {
 
 var isDerefedregex = /^\[(.*?)\](.*)$/;
 function getTargetFunction(target) {
-    var match = isDerefedregex.exec(target);
+    var match,
+        evalExpr;
+
+    if(typeof target !== 'string') {
+        // Non-string aliases are returned as-is (we unwrap String instances)
+        (target instanceof String) && (target += '');
+        return function() {
+            return target;
+        };
+    }
+
+    match = isDerefedregex.exec(target);
+    evalExpr = '';
+
+    if(match) {
+        if(match[2][0] !== '.') {
+            match[2] = '.' + match[2];
+        }
+        evalExpr = 'm = m' + match[2];
+    }
 
     return function(req) {
         var m;
         // Support 'dot notation' => c.f. "[child_process].exec"
         if(match) {
             m = req(match[1]);
-            if(match[2][0] !== '.') {
-                match[2] = '.' + match[2];
-            }
-            eval('m = m' + match[2]);
+            eval(evalExpr);
             return m;
         }
         return req(target);
-    }
+    };
 }

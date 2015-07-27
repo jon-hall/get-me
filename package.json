@@ -4,6 +4,7 @@
   "description": "You get me?",
   "main": "index.js",
   "scripts": {
+    "debug-tests": "node-debug --nodejs --harmony --nodejs --harmony-proxies ./node_modules/gulp/bin/gulp.js test",
     "test": "gulp test"
   },
   "repository": {
@@ -11,15 +12,15 @@
     "url": "jon-hall/get-me"
   },
   "keywords": [
-    "module loader",
+    "get",
+    "get me",
+    "get-me",
     "lazy loader",
     "lazy module loader",
-    "require",
     "lazy require",
-    "require lazy",
-    "get-me",
-    "get me",
-    "get"
+    "module loader",
+    "require",
+    "require lazy"
   ],
   "author": "Jon Hall <jon_hall@outlook.com>",
   "license": "MIT",
@@ -27,12 +28,13 @@
     "express": "^4.13.0",
     "gulp": "^3.9.0",
     "gulp-jasmine": "^2.0.1",
+    "gulp-plumber": "^1.0.1",
     "proxyquire": "^1.5.0",
     "serve-static": "^1.10.0"
   },
   "dependencies": {
     "harmonize": "^1.4.2",
-    "suspend": "^0.6.1"
+    "suspend": "jon-hall/suspend#edge"
   },
   "engines": {
     "node": ">=0.11"

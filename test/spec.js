@@ -86,6 +86,30 @@ describe('when i ask it to get me things', function() {
 
             expect($$.exec).toBe(require('child_process').exec);
         });
+
+        describe('and i alias using non-string values', function() {
+            it('then i should get the values back when doing a require', function() {
+                var w = new String('xyz'),
+                    x = function() {},
+                    y = 4,
+                    z = { a: 1, b: 'b' },
+                    $$ = require('../src/app')
+                    .alias('w', w)
+                    .alias('x', x)
+                    .alias({
+                        y: y,
+                        z: z
+                    })(require);
+
+                // Aliasing is GLOBAL, not per getme
+                expect($$.w).toBe('xyz');
+                expect(w instanceof String).toBe(true);
+                expect($$.w instanceof String).toBe(false);
+                expect($.x).toBe(x);
+                expect($$.y).toBe(4);
+                expect($.z).toBe(z);
+            });
+        });
     });
 
     describe('and i locally alias modules', function() {
@@ -110,6 +134,31 @@ describe('when i ask it to get me things', function() {
 
             // But not each other
             expect($$.exec).toBe(require('child_process').exec);
+        });
+
+        describe('and i alias using non-string values', function() {
+            it('then i should get the values back when doing a require', function() {
+                var w = new String('abc'),
+                    x = function() {},
+                    y = 4,
+                    z = { a: 1, b: 'b' },
+                    $$ = require('../src/app')
+                    .alias('x',
+                        function x(){})(require, {
+                        w: w,
+                        x: x,
+                        y: y,
+                        z: z
+                    });
+
+                expect($$.w).toBe('abc');
+                expect(w instanceof String).toBe(true);
+                expect($$.w instanceof String).toBe(false);
+                expect($.x).not.toBe(x);
+                expect($$.x).toBe(x);
+                expect($$.y).toBe(y);
+                expect($$.z).toBe(z);
+            });
         });
     });
 });

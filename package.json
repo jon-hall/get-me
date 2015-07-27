@@ -1,6 +1,6 @@
 {
   "name": "get-me",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "You get me?",
   "main": "index.js",
   "scripts": {

@@ -12,7 +12,7 @@ function getme(parentRequire, localAliases, noCache) {
     // TODO: Way to clear local caches? Or just let user create new instance?
     var cache = {};
 
-    noCache = module.exports.forceNoCache || noCache;
+    noCache = getme.forceNoCache || noCache;
     if(typeof localAliases !== 'object') {
         noCache = !!localAliases;
         localAliases = {};
@@ -32,41 +32,43 @@ function getme(parentRequire, localAliases, noCache) {
     return Proxy.create({
         get: function(proxy, name) {
             var mod = noCache ? tryRequire(parentRequire, name, aliasProxy) :
-                cache[name] || (cache[name] = tryRequire(parentRequire, name, aliasProxy));
+                cache[name] || (cache[name] = tryRequire(parentRequire, name,
+                    aliasProxy));
             if(mod === moduleNotFound) {
-                throw new GetMeError('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
+                throw new GetMeError('Couldn\'t find module matching name "' +
+                    name + '", are you sure it is installed?');
             }
             return mod;
         }
     });
 };
-module.exports = getme;
-module.exports.forceNoCache = false;
+getme.forceNoCache = false;
 
-module.exports.alias = function(alias, target) {
+getme.alias = function(alias, target) {
     if(typeof alias === 'object') {
         Object.keys(alias).forEach(a => addAlias(a, alias[a]));
         return getme;
     }
 
     if(typeof alias !== 'string') {
-        throw new GetMeError('First argument to "alias" must be an object or a string.');
+        throw new GetMeError('First argument to "alias" must be an object or ' +
+            'a string.');
     }
 
     addAlias(alias, target);
     return getme;
 };
-module.exports.alias.flush = function() {
+getme.alias.flush = function() {
     aliases = {};
     return getme;
 };
 
-module.exports.disableCache = function() {
-    module.exports.forceNoCache = true;
+getme.disableCache = function() {
+    getme.forceNoCache = true;
     return getme;
 };
 
-module.exports.GetMeError = GetMeError;
+getme.GetMeError = GetMeError;
 
 var needsReCasingRegex = /[A-Z]+/;
 function tryRequire(req, name, aliasSet) {
@@ -154,3 +156,5 @@ function getTargetFunction(target) {
         return req(target);
     };
 }
+
+module.exports = getme;

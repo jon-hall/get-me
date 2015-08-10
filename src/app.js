@@ -6,11 +6,13 @@ var suspend = require('suspend'),
     GetMeError = LoggableError.extend('GetMeError');
 
 var aliases = {},
-    moduleNotFound = Symbol();
+    moduleNotFound = Symbol(),
+    fullyUncached = Symbol();
 
 function getme(parentRequire, localAliases, noCache) {
     // TODO: Way to clear local caches? Or just let user create new instance?
-    var cache = {};
+    var clearRequireCache = (noCache === fullyUncached),
+        cache = {};
 
     if(typeof localAliases !== 'object') {
         noCache = !!localAliases;
@@ -30,8 +32,10 @@ function getme(parentRequire, localAliases, noCache) {
 
     return Proxy.create({
         get: function(proxy, name) {
-            var mod = noCache ? tryRequire(parentRequire, name, aliasProxy) :
-                cache[name] || (cache[name] = tryRequire(parentRequire, name, aliasProxy));
+            var mod = (!noCache && cache[name]) ||
+                (cache[name] =
+                    tryRequire(parentRequire, name, aliasProxy, clearRequireCache));
+
             if(mod === moduleNotFound) {
                 throw new GetMeError('Couldn\'t find module matching name "' + name + '", are you sure it is installed?');
             }
@@ -61,10 +65,12 @@ module.exports.alias.flush = function() {
 
 module.exports.GetMeError = GetMeError;
 
+module.exports.fullyUncached = fullyUncached;
+
 var needsReCasingRegex = /[A-Z]+/;
-function tryRequire(req, name, aliasSet) {
+function tryRequire(req, name, aliasSet, clearRequireCache) {
     if(aliasSet[name]) {
-        return aliasSet[name](req);
+        return aliasSet[name](req, clearRequireCache);
     }
 
     // Strip (invalid) '$' chars and replace with forward slashes (for specifying paths)
@@ -86,6 +92,9 @@ function tryRequire(req, name, aliasSet) {
     candidates.some(c => {
         var failed = false;
         try {
+            if(clearRequireCache) {
+                delete req.cache[req.resolve(c)];
+            }
             mod = req(c);
         } catch(ex) {
             if(ex.code === 'MODULE_NOT_FOUND') {
@@ -122,6 +131,7 @@ function getTargetFunction(target) {
         // Non-string aliases are returned as-is (we unwrap String instances)
         (target instanceof String) && (target += '');
         return function() {
+            console.log(Object.keys(target));
             return target;
         };
     }
@@ -136,10 +146,13 @@ function getTargetFunction(target) {
         evalExpr = 'm = m' + match[2];
     }
 
-    return function(req) {
+    return function(req, clearRequireCache) {
         var m;
         // Support 'dot notation' => c.f. "[child_process].exec"
         if(match) {
+            if(clearRequireCache) {
+                delete req.cache[req.resolve(match[1])];
+            }
             m = req(match[1]);
             eval(evalExpr);
             return m;

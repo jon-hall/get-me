@@ -12,6 +12,7 @@ function getme(parentRequire, localAliases, noCache) {
     // TODO: Way to clear local caches? Or just let user create new instance?
     var cache = {};
 
+    noCache = module.exports.forceNoCache || noCache;
     if(typeof localAliases !== 'object') {
         noCache = !!localAliases;
         localAliases = {};
@@ -40,6 +41,7 @@ function getme(parentRequire, localAliases, noCache) {
     });
 };
 module.exports = getme;
+module.exports.forceNoCache = false;
 
 module.exports.alias = function(alias, target) {
     if(typeof alias === 'object') {
@@ -56,6 +58,11 @@ module.exports.alias = function(alias, target) {
 };
 module.exports.alias.flush = function() {
     aliases = {};
+    return getme;
+};
+
+module.exports.disableCache = function() {
+    module.exports.forceNoCache = true;
     return getme;
 };
 

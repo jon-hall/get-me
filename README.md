@@ -1,6 +1,8 @@
 # get me
 
-Simplifies requiring packages in node harmony, using proxies and memoisation to load packages only as required.
+Simplifies requiring packages in node harmony, using proxies and caching to load packages only as required.
+
+> WARNING: This library should only be used for prototyping, since it embeds (somewhat difficult to reliably detect/remove) **synchronous** `require` calls in you code - this would generally be considered a *bad* idea.  One day there may be a rewriter or something which can address this, for now - use at your own risk :smile:.
 
 ## Install
 
@@ -61,12 +63,12 @@ function doStuff(defaults) {
 
 Need to bring a new library into a file?
 
-No need to scroll back to the top, drop in another require and all that jazz - **just start using it**, it's a simple as typing `$.myNewLibrary.doStuff()`!  You can install it later, and if you forget, *get-me* will tell you about it when it can't find what you were looking for!
+No need to scroll back to the top, drop in another require and all of that - **just start using it**, it's a simple as typing `$.myNewLibrary.doStuff()`!  You can install it later, and if you forget, *get-me* will tell you about it when it can't find what you were looking for!
 
 ---
 See the examples folder for a more replete example of all the API features.
 ## Mocking in tests
-You can also now use get-me for providing stubs/mocks in tests by means of global aliases
+You can also use get-me for providing stubs/mocks in tests by means of global aliases
 ```js
 // app.js
 var $ = require('get-me')(require);

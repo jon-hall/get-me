@@ -2,7 +2,7 @@
 
 Simplifies requiring packages in node harmony, using proxies and caching to load packages only as required.
 
-> WARNING: This library should only be used for prototyping, since it embeds (somewhat difficult to reliably detect/remove) **synchronous** `require` calls in you code - this would generally be considered a *bad* idea.  One day there may be a rewriter or something which can address this, for now - use at your own risk :smile:.
+> **WARNING**: This library should only be used for *prototyping*, since it embeds (somewhat difficult to reliably detect/remove) **synchronous** `require` calls in you code - this would generally be considered a *bad* idea.  One day there may be a rewriter or something which can address this, for now - use at your own risk :smile:.
 
 ## Install
 

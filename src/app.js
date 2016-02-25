@@ -120,7 +120,10 @@ function getTargetFunction(target) {
 
     if(typeof target !== 'string') {
         // Non-string aliases are returned as-is (we unwrap String instances)
-        (target instanceof String) && (target += '');
+        if (target instanceof String) {
+            target += '';
+        }
+        
         return function() {
             return target;
         };
